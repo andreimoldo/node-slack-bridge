@@ -1,0 +1,17 @@
+{
+    "irc": {
+        "server": "",
+        "userName": "",
+        "realName": "",
+        "channels": [],
+        "autoConnect": true,
+        "autoRejoin": true,
+        "secure": false,
+        "port": 6667
+    },
+
+    "slack": {
+        "token": "",
+        "channel": ""
+    }
+}
