@@ -1,6 +1,7 @@
 // Requires
 var Slack = require('slack-client');
 var IRC = require('irc');
+var _ = require('lodash')
 
 var pack = require("./package.json");
 var config = require("./config.json");
@@ -47,9 +48,13 @@ slack.on('message', function(message) {
     if (typeof message.text == 'undefined') return;
 
     if (message.channel === config.slack.channel) {
-        if (message.text.indexOf('!status') === 0) {
-            channel.postMessage({channel: config.slack.channel, text: '<@' + message.user + '> *- Version:* ' + pack.version + ' *| Uptime:* ' + process.uptime() + 's *| Messages sent/received:* ' + status.messages, username: 'status', icon_url: 'http://api.adorable.io/avatars/48/info'});
-            console.log('Version: ' + pack.version + ' | Uptime: ' + process.uptime() + 's | Messages sent/received: ' + status.messages);
+        if (_.startsWith(message.text, '!')) {
+            command = message.text.substr(1);
+            switch (command)
+            case 'status' {
+                channel.postMessage({channel: config.slack.channel, text: '<@' + message.user + '> *- Version:* ' + pack.version + ' *| Uptime:* ' + process.uptime() + 's *| Messages sent/received:* ' + status.messages, username: 'status', icon_url: 'http://api.adorable.io/avatars/48/info'});
+                console.log('Version: ' + pack.version + ' | Uptime: ' + process.uptime() + 's | Messages sent/received: ' + status.messages);
+            }
         } else {
             var user = slack.getUserByID(message.user);
             if (user && !user.isBot) {
