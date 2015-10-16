@@ -22,7 +22,11 @@ var status = {
 
 // Listeners
 irc.addListener('message', function(from, to, message) {
-    channel.postMessage({channel: config.slack.channel, text: message, username: from, icon_url: 'http://api.adorable.io/avatars/48/' + from});
+    channel.postMessage({
+        channel: config.slack.channel,
+        text: message,
+        username: from,
+        icon_url: 'http://api.adorable.io/avatars/48/' + from});
     status.messages++;
 });
 
@@ -34,6 +38,23 @@ irc.addListener('registered', function(message) {
     status.connected = true;
 });
 
+irc.addListener('names#find', function(nicks) {
+    text = "Here's a list of people online on *#find*. One of them might be me, I can't tell...\n";
+    names = _.chain(nicks)
+        .keys()
+        .map(function(name) {
+            return '*' + name + '*'
+        })
+        .join(', ')
+        .value();
+
+    channel.postMessage({
+        channel: config.slack.channel,
+        text: text + names,
+        username: 'status',
+        icon_url: 'http://api.adorable.io/avatars/48/info'
+    })
+});
 
 // Callbacks
 slack.on('open', function() {
@@ -50,10 +71,20 @@ slack.on('message', function(message) {
     if (message.channel === config.slack.channel) {
         if (_.startsWith(message.text, '!')) {
             command = message.text.substr(1);
-            switch (command)
-            case 'status' {
-                channel.postMessage({channel: config.slack.channel, text: '<@' + message.user + '> *- Version:* ' + pack.version + ' *| Uptime:* ' + process.uptime() + 's *| Messages sent/received:* ' + status.messages, username: 'status', icon_url: 'http://api.adorable.io/avatars/48/info'});
-                console.log('Version: ' + pack.version + ' | Uptime: ' + process.uptime() + 's | Messages sent/received: ' + status.messages);
+            switch (command) {
+            case 'status':
+                channel.postMessage({
+                    channel: config.slack.channel,
+                    text: '<@' + message.user + '> *- Version:* ' + pack.version + ' *| Uptime:* ' + process.uptime() + 's *| Messages sent/received:* ' + status.messages,
+                    username: 'status',
+                    icon_url: 'http://api.adorable.io/avatars/48/info'
+                });
+                break;
+            case 'names':
+                irc.send('NAMES');
+                break;
+            default:
+                console.log('Invalid command:', command);
             }
         } else {
             var user = slack.getUserByID(message.user);

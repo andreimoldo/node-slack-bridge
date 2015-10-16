@@ -10,3 +10,4 @@ This project was inspired by [node-slack-irc](https://github.com/IgorAntun/node-
 ### Usable from IRC
 
 ### Usable from Slack
+- `!names` will list the online users in the connected IRC channel
