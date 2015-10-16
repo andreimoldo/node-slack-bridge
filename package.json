@@ -23,6 +23,7 @@
   "homepage": "https://github.com/andreimoldo/node-slack-bridge",
   "dependencies": {
     "irc": "^0.4.0",
+    "lodash": "^3.10.1",
     "slack-client": "^1.4.1"
   }
 }
