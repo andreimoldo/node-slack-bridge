@@ -11,7 +11,6 @@ var irc = new IRC.Client(config.irc.server, config.irc.userName, config.irc)
 var slack = new Slack(config.slack.token, false, false);
 var channel;
 
-
 // Variables
 var status = {
     name: config.irc.userName,
@@ -19,8 +18,7 @@ var status = {
     connected: false
 };
 
-
-// Listeners
+// IRC Listeners
 irc.addListener('message', function(from, to, message) {
     channel.postMessage({
         channel: config.slack.channel,
@@ -32,6 +30,22 @@ irc.addListener('message', function(from, to, message) {
 
 irc.addListener('error', function(message) {
     console.log('Error: ', message);
+});
+
+irc.addListener('join#find', function(nick, message) {
+    channel.postMessage({
+        channel: config.slack.channel,
+        text: 'Joins *#find:* ' + nick,
+        username: 'Status',
+        icon_url: 'http://api.adorable.io/avatars/48/info'});
+});
+
+irc.addListener('part#find', function(nick, message) {
+    channel.postMessage({
+        channel: config.slack.channel,
+        text: 'Parts *#find*: ' + nick,
+        username: 'Status',
+        icon_url: 'http://api.adorable.io/avatars/48/info'});
 });
 
 irc.addListener('registered', function(message) {
@@ -56,7 +70,7 @@ irc.addListener('names#find', function(nicks) {
     })
 });
 
-// Callbacks
+// Slack Callbacks
 slack.on('open', function() {
     channel = slack.getChannelGroupOrDMByID(config.slack.channel);
 });
@@ -76,7 +90,7 @@ slack.on('message', function(message) {
                 channel.postMessage({
                     channel: config.slack.channel,
                     text: '<@' + message.user + '> *- Version:* ' + pack.version + ' *| Uptime:* ' + process.uptime() + 's *| Messages sent/received:* ' + status.messages,
-                    username: 'status',
+                    username: 'Status',
                     icon_url: 'http://api.adorable.io/avatars/48/info'
                 });
                 break;
